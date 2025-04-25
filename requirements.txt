@@ -1,0 +1,9 @@
+# Core dependencies
+polars==1.0.2  # Modern DataFrame library, replacement for pandas
+astral==3.0    # For sunrise/sunset calculations
+pytz           # Timezone support
+airportsdata==1.0.0  # Airport database
+
+# Web app dependencies
+flask==2.0.3   # Web framework
+Werkzeug==2.0.3  # WSGI utilities 

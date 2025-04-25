@@ -563,6 +563,104 @@ def calculate_actual_instrument(row):
     night_time = safe_float_conversion(row['Night Time'])
     return night_time * 0.5
 
+def main_web(args):
+    """
+    Web version of the main function that accepts pre-parsed args
+    instead of using argparse.
+    
+    This version suppresses some print statements and is designed
+    to be called from a web application.
+    """
+    flights_csv = args.flights
+    output_csv = args.output
+    default_crew_position = args.position
+    oe_file = args.oe_data
+    
+    # Load OE data if provided
+    oe_data = {}
+    if oe_file:
+        try:
+            oe_data = load_oe_data(oe_file)
+            if default_crew_position == 'auto' and not oe_data:
+                default_crew_position = 'captain'  # Fallback to captain if auto requested but no OE data
+        except Exception as e:
+            if default_crew_position == 'auto':
+                default_crew_position = 'captain'
+    
+    # Check if the input file exists
+    if not os.path.exists(flights_csv):
+        raise FileNotFoundError(f"Flight data file '{flights_csv}' not found.")
+    
+    # Process the data
+    df = pd.read_csv(flights_csv)
+    rows_processed = len(df)
+    
+    # Format tail numbers
+    df['TAIL'] = df['TAIL'].apply(format_tail_number)
+    
+    # Calculate night time
+    df['Night Time'] = df.apply(estimate_night_time, axis=1)
+    
+    # Calculate actual instrument time (50% of night time)
+    df['Act Inst'] = df.apply(calculate_actual_instrument, axis=1)
+    
+    # Calculate day and night landings
+    day_night_landings = df.apply(process_landings, axis=1, result_type='expand')
+    df['Day Landings'] = day_night_landings[0]
+    df['Night Landings'] = day_night_landings[1]
+    
+    # Record approaches
+    df['Approaches'] = df.apply(record_approaches, axis=1)
+    
+    # Determine crew position for each flight if using auto mode
+    if default_crew_position == 'auto':
+        # Create a new column for the crew position
+        df['CrewPosition'] = df.apply(lambda row: determine_crew_position(row, 'captain', oe_data), axis=1)
+        
+        # Apply crew time calculations based on determined position
+        crew_times = df.apply(
+            lambda row: assign_crew_time(row, row['CrewPosition'], oe_data), 
+            axis=1, result_type='expand'
+        )
+    else:
+        # Use the default crew position for all flights
+        crew_times = df.apply(lambda row: assign_crew_time(row, default_crew_position, oe_data), axis=1, result_type='expand')
+    
+    # Add crew position time columns
+    df['PIC'] = crew_times['PIC']
+    df['SIC'] = crew_times['SIC']
+    df['XC'] = crew_times['XC']
+    
+    # Rename columns to FAA format
+    df = df.rename(columns=FAA_COLUMN_MAPPING)
+    
+    # Reorganize columns in a logical FAA logbook order
+    column_order = [
+        'Date', 'Aircraft Type', 'Aircraft Ident.', 
+        'Route From', 'Route To', 
+        'Out', 'Off', 'On', 'In', 
+        'Duration', 'Block', 'PIC', 'SIC', 'Cross Country', 'Night', 'Actual Instrument',
+        'Day Landings', 'Night Landings', 'Approaches'
+    ]
+    
+    # Only include columns in column_order that exist in the dataframe
+    final_columns = [col for col in column_order if col in df.columns]
+    
+    # Add any other columns not in our predefined order
+    for col in df.columns:
+        if col not in final_columns and col != 'CrewPosition':  # Skip temporary CrewPosition column
+            final_columns.append(col)
+    
+    df = df[final_columns]
+    
+    # Format float columns with 1 decimal place
+    for col in ['Duration', 'Block', 'PIC', 'SIC', 'Cross Country', 'Night', 'Actual Instrument']:
+        if col in df.columns:
+            df[col] = df[col].apply(lambda x: round(safe_float_conversion(x), 1))
+    
+    df.to_csv(output_csv, index=False)
+    return rows_processed
+
 def main():
     """
     Main function for processing flight logbook data.

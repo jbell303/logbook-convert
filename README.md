@@ -9,19 +9,22 @@ A Python utility for processing and formatting flight logbook data according to 
 - astral
 - pytz
 - airportsdata
+- flask (for web app)
 
 Install dependencies:
 ```bash
-pip install pandas astral pytz airportsdata
+pip install -r requirements.txt
 ```
 
 ## Usage
+
+### Command Line Interface
 
 ```bash
 python format.py --flights <flight_csv_file> --output <output_csv_file> --position <crew_position> --oe-data <oe_data_csv>
 ```
 
-### Arguments
+#### Arguments
 
 - `--flights`: Input CSV file containing flight data (default: "DWNLD_3983442.csv")
 - `--output`: Output CSV file path (default: "FAA_Logbook_YYYY-MM-DD.csv")
@@ -32,11 +35,26 @@ python format.py --flights <flight_csv_file> --output <output_csv_file> --positi
   - Use "auto" with --oe-data to determine position from OE data
 - `--oe-data`: Optional CSV file with Operating Experience data
 
-### Example
+#### Example
 
 ```bash
 python format.py --flights 2023_flights.csv --position auto --oe-data 2023_OE.csv
 ```
+
+### Web Application
+
+You can also run the tool as a web application that allows uploading files through a browser interface:
+
+```bash
+python app.py
+```
+
+Once running, open your browser to http://localhost:5000 to access the web interface.
+
+The web app provides:
+- File upload interface for flight data and OE data
+- Dropdown to select crew position
+- Immediate download of the processed FAA logbook file
 
 ## Calculations
 
