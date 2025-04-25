@@ -322,10 +322,13 @@ def parse_args():
         help='Input CSV file containing flight data with columns for flight times, origins, destinations, etc.'
     )
     
+    # Generate a default output filename that includes the current date
+    default_output = f"FAA_Logbook_{datetime.now().strftime('%Y-%m-%d')}.csv"
+    
     parser.add_argument(
         '--output', 
         type=str, 
-        default="FAA_Logbook.csv",
+        default=default_output,
         help='Output CSV file path where the formatted FAA logbook data will be written'
     )
     
@@ -343,7 +346,16 @@ def parse_args():
         help='Optional CSV file with Operating Experience data that contains crew position information and custom logging rules'
     )
     
-    return parser.parse_args()
+    args = parser.parse_args()
+    
+    # If no custom output file is specified, generate one based on the input filename
+    if args.output == default_output and args.flights != "DWNLD_3983442.csv":
+        # Extract the base filename without extension
+        input_base = os.path.splitext(os.path.basename(args.flights))[0]
+        args.output = f"FAA_{input_base}_{datetime.now().strftime('%Y-%m-%d')}.csv"
+        print(f"Auto-generating output filename: {args.output}")
+    
+    return args
 
 def handle_specific_flights():
     """
