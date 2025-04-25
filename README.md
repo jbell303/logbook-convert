@@ -113,3 +113,7 @@ Optional columns: SEAT, ROLE, PIC_OE, SIC_OE, PIC_RFO_OE, SIC_RFO_OE
 
 ### Output
 Standard FAA logbook format with columns for Date, Aircraft Type, Aircraft Ident, Routes, Times, and different categories of flight time. 
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details. 
