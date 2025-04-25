@@ -1,0 +1,42 @@
+# Exclude all data files
+/data/
+/data/*
+
+# Python virtual environments
+/venv/
+/env/
+/.venv/
+/.env/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# Output files
+*.csv
+!sample_*.csv
+FAA_Logbook*.csv
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor directories and files
+.idea/
+.vscode/
+*.swp
+*.swo 
