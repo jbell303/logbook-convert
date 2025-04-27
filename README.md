@@ -33,10 +33,10 @@ pip install -r requirements.txt
 The easiest way to use the tool is through the web interface:
 
 ```bash
-python app.py --port 5050
+python app.py
 ```
 
-Then open your browser to http://127.0.0.1:5050 to access the interface.
+Then open your browser to http://127.0.0.1:5000 to access the interface.
 
 The web app provides:
 - File upload interface for flight data and OE data
