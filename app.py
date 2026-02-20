@@ -16,6 +16,8 @@ app.secret_key = 'logbook-formatter-secret-key'  # Required for flash messages
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # Limit uploads to 16MB
 app.config['UPLOAD_FOLDER'] = tempfile.gettempdir()  # Use system temp directory for uploads
 
+# TODO: Add option to format output for logbook.aero (see format_logbook_aero.py for implementation)
+
 ALLOWED_EXTENSIONS = {'csv'}
 
 # Initialize the airports database
